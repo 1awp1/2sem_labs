@@ -1,0 +1,8 @@
+::1 - - [23/Feb/2025:12:14:32 +0000] "GET /users/1 HTTP/1.1" 404 146 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+::1 - - [23/Feb/2025:12:14:38 +0000] "GET /users/2 HTTP/1.1" 404 146 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+::1 - - [23/Feb/2025:12:18:05 +0000] "GET /users/1 HTTP/1.1" 404 146 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+::1 - - [23/Feb/2025:12:18:15 +0000] "GET /users/id2 HTTP/1.1" 404 148 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+::1 - - [23/Feb/2025:12:18:18 +0000] "GET /users/:id2 HTTP/1.1" 404 149 "-" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
+::1 - - [23/Feb/2025:12:43:37 +0000] "GET /users/1 HTTP/1.1" 404 146 "-" "PostmanRuntime/7.43.0"
+::1 - - [23/Feb/2025:12:43:38 +0000] "GET /users/1 HTTP/1.1" 404 146 "-" "PostmanRuntime/7.43.0"
+::1 - - [23/Feb/2025:12:43:45 +0000] "GET /events1 HTTP/1.1" 404 146 "-" "PostmanRuntime/7.43.0"
