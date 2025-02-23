@@ -12,7 +12,7 @@
                 host: process.env.DB_HOST,
                 port: process.env.DB_PORT,
                 dialect: process.env.DB_DIALECT || 'postgres',
-                logging: false // Отключаем логирование SQL-запросов в консоль (по желанию)
+                logging: false // Отключаем логирование SQL-запросов в консоль 
             }
         );
 

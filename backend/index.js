@@ -7,14 +7,29 @@
     const Event = require('./models/Event'); // Импортируем модель Event
     const eventRoutes = require('./routes/events'); // Импортируем маршруты для мероприятий
     const userRoutes = require('./routes/users');   // Импортируем маршруты для пользователей
+    const swaggerUi = require('swagger-ui-express'); // Импортируем swagger-ui-express
+    const swaggerSpec = require('./swaggerOptions'); // Импортируем swaggerSpec
+    const morgan = require('morgan');
+    const fs = require('fs'); // Для записи в файл
+    const path = require('path');
+    console.log("Path module loaded:", typeof path); // добавил для  const logStream
+    const rateLimiter = require('./middleware/rateLimet');
+    const errorHandler = require('./middleware/errorHandler');
+
 
     dotenv.config(); // Загружаем переменные окружения из .env (если он есть)
 
     const app = express(); // Создаем экземпляр приложения Express
     const port = process.env.PORT || 3000; // Используем порт из .env или 3000 по умолчанию
 
+    app.use(errorHandler);
+    app.use(rateLimiter);
     app.use(express.json()); // Middleware для обработки входящих JSON-запросов
     app.use(cors());         // Middleware для разрешения кросс-доменных запросов
+
+    // Подключаем Swagger UI
+    app.use('/api-docs', swaggerUi.serve, 
+    swaggerUi.setup(swaggerSpec));
 
     // Подключаем маршруты
     app.use('/events', eventRoutes); // Все маршруты для мероприятий начинаются с /events
@@ -24,6 +39,11 @@
         res.json({ message: 'Hello from Express!' });
     });
 
+    //...
+    app.use(morgan('dev')); // 'dev' - компактный формат
+    const logStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
+    app.use(morgan('combined', { stream: logStream }));
+    //..
 
     // Синхронизация моделей с базой данных
     sequelize.sync({ force: false }) // { force: true } - удалит все таблицы и создаст их заново! 
