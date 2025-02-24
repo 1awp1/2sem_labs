@@ -1,39 +1,104 @@
-    // routes/users.js
-    const express = require('express');
-    const router = express.Router();
-    const User = require('../models/User');
+// routes/users.js
+const express = require('express');
+const router = express.Router();
+const User = require('../models/User');
 
-    // Создание нового пользователя (POST /users)
-    router.post('/', async (req, res) => {
-        try {
-            const { name, email } = req.body;
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Создает нового пользователя
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Имя пользователя
+ *               email:
+ *                 type: string
+ *                 description: Email пользователя
+ *             required:
+ *               - name
+ *               - email
+ *     responses:
+ *       201:
+ *         description: Успешное создание пользователя
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Неверный запрос (отсутствуют обязательные поля или email уже существует)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+// Создание нового пользователя (POST /users)
+router.post('/', async (req, res) => {
+    try {
+        const { name, email } = req.body;
 
-            if (!name || !email) {
-                return res.status(400).json({ message: 'Please provide name and email' });
-            }
-
-            const existingUser = await User.findOne({ where: { email } });
-            if (existingUser) {
-                return res.status(400).json({ message: 'Email already exists' });
-            }
-
-            const user = await User.create({ name, email });
-            res.status(201).json(user);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Server error' });
+        if (!name || !email) {
+            return res.status(400).json({ message: 'Please provide name and email' });
         }
-    });
 
-    // Получение списка пользователей (GET /users)
-    router.get('/', async (req, res) => {
-        try {
-            const users = await User.findAll();
-            res.status(200).json(users);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: 'Server error' });
+        const existingUser = await User.findOne({ where: { email } });
+        if (existingUser) {
+            return res.status(400).json({ message: 'Email already exists' });
         }
-    });
 
-    module.exports = router;
+        const user = await User.create({ name, email });
+        res.status(201).json(user);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Получает список всех пользователей
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Успешный ответ с массивом пользователей
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
+// Получение списка пользователей (GET /users)
+router.get('/', async (req, res) => {
+    try {
+        const users = await User.findAll();
+        res.status(200).json(users);
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Server error' });
+    }
+});
+
+module.exports = router;
+
