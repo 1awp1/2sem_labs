@@ -11,12 +11,13 @@ const options = {
     },
     components: {
       schemas: {
-        Event: {  // Описание модели Event
+        Event: {
           type: 'object',
           properties: {
             id: {
               type: 'integer',
-              description: 'ID мероприятия'
+              description: 'ID мероприятия',
+              readOnly: true
             },
             title: {
               type: 'string',
@@ -33,7 +34,8 @@ const options = {
             },
             category: {
               type: 'string',
-              description: 'Категория мероприятия'
+              description: 'Категория мероприятия',
+              enum: ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое']
             },
             creatorId: {
               type: 'integer',
@@ -42,14 +44,16 @@ const options = {
             createdAt: {
               type: 'string',
               format: 'date-time',
-              description: 'Время создания'
+              description: 'Время создания',
+              readOnly: true
             },
             updatedAt: {
               type: 'string',
               format: 'date-time',
-              description: 'Время обновления'
+              description: 'Время обновления',
+              readOnly: true
             },
-             creator: {  // Описание связанной модели User
+             creator: {
                type: 'object',
                properties: {
                  id: {
@@ -67,18 +71,68 @@ const options = {
                }
              }
           },
-          required: [  // Список обязательных полей
+          required: [
             'title',
             'description',
             'date',
             'category',
             'creatorId'
           ]
+        },
+        User: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'integer',
+              description: 'ID пользователя',
+              readOnly: true
+            },
+            name: {
+              type: 'string',
+              description: 'Имя пользователя'
+            },
+            email: {
+              type: 'string',
+              description: 'Email пользователя'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Время создания',
+              readOnly: true
+            }
+          },
+          required: [
+            'name',
+            'email'
+          ]
+        },
+        Error: {
+          type: 'object',
+          properties: {
+            message: {
+              type: 'string',
+              description: 'Сообщение об ошибке'
+            }
+          }
         }
       }
-    }
+    },
+    // Security Definitions (optional)
+    securityDefinitions: {
+      bearerAuth: {
+        type: 'apiKey',
+        name: 'Authorization',
+        scheme: 'bearer',
+        in: 'header',
+        description: 'Enter JWT Bearer token **_only_**'
+      }
+    },
+    security: [{
+      bearerAuth: []
+    }],
   },
-  apis: ['./routes/*.js', './models/*.js'], // Пути к файлам с API endpoints и моделями
+  apis: ['./routes/*.js', './models/*.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

@@ -7,6 +7,35 @@
     const { Op } = require('sequelize'); // Для фильтрации
 //...
 
+/**
+ * @swagger
+ * /events:
+ *   get:
+ *     summary: Получает список всех мероприятий
+ *     tags: [Events]
+ *     parameters:
+ *       - in: query
+ *         name: category
+ *         schema:
+ *           type: string
+ *           enum: ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое']
+ *         description: Фильтр по категории мероприятия
+ *     responses:
+ *       200:
+ *         description: Успешный ответ с массивом мероприятий
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/Event'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Получение списка всех мероприятий (GET /events)
 router.get('/', async (req, res) => {
         try {
@@ -37,6 +66,45 @@ router.get('/', async (req, res) => {
         }
     });
 
+/**
+ * @swagger
+ * /events/{id}:
+ *   get:
+ *     summary: Получает мероприятие по ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID мероприятия
+ *     responses:
+ *       200:
+ *         description: Успешный ответ с информацией о мероприятии
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Invalid event ID
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Event not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
    // Получение одного мероприятия по ID (GET /events/:id)
 router.get('/:id', async (req, res) => {
     try {
@@ -62,6 +130,62 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+/**
+ * @swagger
+ * /events:
+ *   post:
+ *     summary: Создает новое мероприятие
+ *     tags: [Events]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Название мероприятия
+ *               description:
+ *                 type: string
+ *                 description: Описание мероприятия
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Дата и время мероприятия
+ *               createdBy:
+ *                 type: integer
+ *                 description: ID создателя мероприятия
+ *               category:
+ *                 type: string
+ *                 enum: ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое']
+ *                 description: Категория мероприятия
+ *             required:
+ *               - title
+ *               - description
+ *               - date
+ *               - createdBy
+ *               - category
+ *     responses:
+ *       201:
+ *         description: Успешное создание мероприятия
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Invalid input
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Создание мероприятия (POST /events)
 router.post('/', async (req, res) => {
         try {

@@ -6,3 +6,4 @@
 ::1 - - [23/Feb/2025:12:43:37 +0000] "GET /users/1 HTTP/1.1" 404 146 "-" "PostmanRuntime/7.43.0"
 ::1 - - [23/Feb/2025:12:43:38 +0000] "GET /users/1 HTTP/1.1" 404 146 "-" "PostmanRuntime/7.43.0"
 ::1 - - [23/Feb/2025:12:43:45 +0000] "GET /events1 HTTP/1.1" 404 146 "-" "PostmanRuntime/7.43.0"
+::1 - - [24/Feb/2025:06:45:59 +0000] "GET /favicon.ico HTTP/1.1" 404 150 "http://localhost:3000/users/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36"
