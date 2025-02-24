@@ -204,9 +204,12 @@ router.post('/', async (req, res) => {
             }
 
             //..
-             // Проверяем, является ли категория допустимым значением ENUM
-            const allowedCategories = ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое'];
-            if (!allowedCategories.includes(category)) {
+            // Проверяем, существует ли категория с таким именем
+            const existingCategory = await Category.findOne({
+                where: { name: category }
+            });
+
+            if (!existingCategory) {
                 return res.status(400).json({ message: 'Invalid category' });
             }
             //..
@@ -246,12 +249,13 @@ router.put('/:id', async (req, res) => {
             }
 
             //..
-              // Проверяем, является ли категория допустимым значением ENUM
-              if (category) {
-                const allowedCategories = ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое'];
-                if (!allowedCategories.includes(category)) {
-                    return res.status(400).json({ message: 'Invalid category' });
-                }
+            
+            const existingCategory = await Category.findOne({
+                where: { name: category }
+            });
+
+            if (!existingCategory) {
+                return res.status(400).json({ message: 'Invalid category' });
             }
             //..
 
