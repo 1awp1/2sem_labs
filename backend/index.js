@@ -39,8 +39,13 @@ app.use('/api-docs', swaggerUi.serve,
 app.use('/events', eventRoutes); // Все маршруты для мероприятий начинаются с /events
 app.use('/users', userRoutes);   // Все маршруты для пользователей начинаются с /users
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello from Express!' });
+// Обработчик ошибок JSON-парсинга
+app.use((err, req, res, next) => {
+  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
+    console.error("Bad JSON:", err);
+    return res.status(400).send({ error: "Invalid JSON format" });
+  }
+  next(); // Передаем обработку ошибки дальше, если это не ошибка JSON
 });
 
 //...
@@ -48,6 +53,12 @@ app.use(morgan('dev')); // 'dev' - компактный формат
 const logStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' });
 app.use(morgan('combined', { stream: logStream }));
 //..
+// ВАЖНО:  Установите errorHandler *ПОСЛЕ* всех ваших маршрутов и других middleware.
+app.use(errorHandler); // Добавили middleware для централизованной обработки ошибок
+
+app.get('/', (req, res) => {
+  res.json({ message: 'Hello from Express!' });
+});
 
 // Синхронизация моделей с базой данных
 sequelize.sync({ force: false }) // { force: true } - удалит все таблицы и создаст их заново!
@@ -60,18 +71,6 @@ sequelize.sync({ force: false }) // { force: true } - удалит все таб
 
 // Проверка подключения к базе данных
 authenticate(); // Вызываем функцию проверки подключения
-
-// Обработчик ошибок JSON-парсинга
-app.use((err, req, res, next) => {
-  if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
-    console.error("Bad JSON:", err);
-    return res.status(400).send({ error: "Invalid JSON format" });
-  }
-  next(); // Передаем обработку ошибки дальше, если это не ошибка JSON
-});
-
-// ВАЖНО:  Установите errorHandler *ПОСЛЕ* всех ваших маршрутов и других middleware.
-app.use(errorHandler); // Добавили middleware для централизованной обработки ошибок
 
 
 app.listen(port, () => {
