@@ -3,46 +3,47 @@ const router = express.Router();
 const User = require('../models/User');
 
 /**
- • @swagger
- • /users:
- •   post:
- •     summary: Создает нового пользователя
- •     tags: [Users]
- •     requestBody:
- •       required: true
- •       content:
- •         application/json:
- •           schema:
- •             type: object
- •             properties:
- •               name:
- •                 type: string
- •                 description: Имя пользователя
- •               email:
- •                 type: string
- •                 description: Email пользователя
- •             required:
- •               - name
- •               - email
- •     responses:
- •       201:
- •         description: Успешное создание пользователя
- •         content:
- •           application/json:
- •             schema:
- •               $ref: '#/components/schemas/User'
- •       400:
- •         description: Неверный запрос (отсутствуют обязательные поля или email уже существует)
- •         content:
- •           application/json:
- •             schema:
- •               $ref: '#/components/schemas/Error'
- •       500:
- •         description: Ошибка сервера
- •         content:
- •           application/json:
- •             schema:
- •               $ref: '#/components/schemas/Error'
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Создает нового пользователя
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name:
+ *                 type: string
+ *                 description: Имя пользователя
+ *               email:
+ *                 type: string
+ *                 description: Email пользователя
+ *                 format: email
+ *             required:
+ *               - name
+ *               - email
+ *     responses:
+ *       201:
+ *         description: Успешное создание пользователя
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/User'
+ *       400:
+ *         description: Неверный запрос (отсутствуют обязательные поля или email уже существует)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.post('/', async (req, res) => {
     try {
@@ -83,26 +84,26 @@ router.post('/', async (req, res) => {
 });
 
 /**
- • @swagger
- • /users:
- •   get:
- •     summary: Получает список всех пользователей
- •     tags: [Users]
- •     responses:
- •       200:
- •         description: Успешный ответ с массивом пользователей
- •         content:
- •           application/json:
- •             schema:
- •               type: array
- •               items:
- •                 $ref: '#/components/schemas/User'
- •       500:
- •         description: Ошибка сервера
- •         content:
- •           application/json:
- •             schema:
- •               $ref: '#/components/schemas/Error'
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Получает список всех пользователей
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Успешный ответ с массивом пользователей
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 $ref: '#/components/schemas/User'
+ *       500:
+ *         description: Ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
  */
 router.get('/', async (req, res) => {
     try {

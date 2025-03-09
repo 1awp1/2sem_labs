@@ -17,67 +17,74 @@ const options = {
             id: {
               type: 'integer',
               description: 'ID мероприятия',
-              readOnly: true
+              readOnly: true,
             },
             title: {
               type: 'string',
-              description: 'Название мероприятия'
+              description: 'Название мероприятия',
             },
             description: {
               type: 'string',
-              description: 'Описание мероприятия'
+              description: 'Описание мероприятия',
             },
             date: {
               type: 'string',
               format: 'date-time',
-              description: 'Дата и время мероприятия'
+              description: 'Дата и время мероприятия',
             },
             category: {
               type: 'string',
               description: 'Категория мероприятия',
-              enum: ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое']
+              enum: [
+                'концерт',
+                'лекция',
+                'выставка',
+                'семинар',
+                'мастер-класс',
+                'другое',
+              ],
             },
             creatorId: {
               type: 'integer',
-              description: 'ID создателя мероприятия'
+              description: 'ID создателя мероприятия',
             },
             createdAt: {
               type: 'string',
               format: 'date-time',
               description: 'Время создания',
-              readOnly: true
+              readOnly: true,
             },
             updatedAt: {
               type: 'string',
               format: 'date-time',
               description: 'Время обновления',
-              readOnly: true
+              readOnly: true,
             },
-             creator: {
-               type: 'object',
-               properties: {
-                 id: {
-                   type: 'integer',
-                   description: 'ID пользователя'
-                 },
-                 name: {
-                   type: 'string',
-                   description: 'Имя пользователя'
-                 },
-                 email: {
-                   type: 'string',
-                   description: 'Email пользователя'
-                 }
-               }
-             }
+            creator: {
+              type: 'object',
+              properties: {
+                id: {
+                  type: 'integer',
+                  description: 'ID пользователя',
+                },
+                name: {
+                  type: 'string',
+                  description: 'Имя пользователя',
+                },
+                email: {
+                  type: 'string',
+                  description: 'Email пользователя',
+                },
+              },
+            },
           },
           required: [
             'title',
             'description',
             'date',
             'category',
-            'creatorId'
-          ]
+            'creatorId',
+          ],
         },
         User: {
           type: 'object',
@@ -85,38 +92,38 @@ const options = {
             id: {
               type: 'integer',
               description: 'ID пользователя',
-              readOnly: true
+              readOnly: true,
             },
             name: {
               type: 'string',
-              description: 'Имя пользователя'
+              description: 'Имя пользователя',
             },
             email: {
               type: 'string',
-              description: 'Email пользователя'
+              description: 'Email пользователя',
             },
             createdAt: {
               type: 'string',
               format: 'date-time',
               description: 'Время создания',
-              readOnly: true
-            }
+              readOnly: true,
+            },
           },
           required: [
             'name',
-            'email'
-          ]
+            'email',
+          ],
         },
         Error: {
           type: 'object',
           properties: {
             message: {
               type: 'string',
-              description: 'Сообщение об ошибке'
-            }
-          }
-        }
-      }
+              description: 'Сообщение об ошибке',
+            },
+          },
+        },
+      },
     },
     // Security Definitions (optional)
     securityDefinitions: {
@@ -125,14 +132,14 @@ const options = {
         name: 'Authorization',
         scheme: 'bearer',
         in: 'header',
-        description: 'Enter JWT Bearer token **_only_**'
-      }
+        description: 'Enter JWT Bearer token **_only_**',
+      },
     },
     security: [{
-      bearerAuth: []
+      bearerAuth: [],
     }],
   },
-  apis: ['./routes/*.js', './models/*.js'],
+  apis: ['./routes/*.js'],
 };
 
 const swaggerSpec = swaggerJsdoc(options);

@@ -4,8 +4,16 @@
     const Event = require('../models/Event');
     const User = require('../models/User'); // Необходимо для связи с пользователем
 //...
+    const Category = require('../models/Category'); // Импортируйте вашу модель Category
     const { Op } = require('sequelize'); // Для фильтрации
 //...
+
+/**
+ * @swagger
+ * tags:
+ *   name: Events
+ *   description: Операции с мероприятиями
+ */
 
 /**
  * @swagger
@@ -16,10 +24,11 @@
  *     parameters:
  *       - in: query
  *         name: category
+ *         required: false
  *         schema:
  *           type: string
  *           enum: ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое']
- *         description: Фильтр по категории мероприятия
+ *         description: Фильтр по категории мероприятия. Если не указано, возвращает все мероприятия.
  *     responses:
  *       200:
  *         description: Успешный ответ с массивом мероприятий
@@ -30,12 +39,13 @@
  *               items:
  *                 $ref: '#/components/schemas/Event'
  *       500:
- *         description: Server error
+ *         description: Ошибка сервера
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
+
 // Получение списка всех мероприятий (GET /events)
 router.get('/', async (req, res) => {
         try {
@@ -78,7 +88,7 @@ router.get('/', async (req, res) => {
  *         required: true
  *         schema:
  *           type: integer
- *         description: ID мероприятия
+ *         description: ID мероприятия (должен быть целым числом)
  *     responses:
  *       200:
  *         description: Успешный ответ с информацией о мероприятии
@@ -87,19 +97,19 @@ router.get('/', async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Event'
  *       400:
- *         description: Invalid event ID
+ *         description: Неверный ID мероприятия
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       404:
- *         description: Event not found
+ *         description: Мероприятие не найдено
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       500:
- *         description: Server error
+ *         description: Ошибка сервера
  *         content:
  *           application/json:
  *             schema:
@@ -152,10 +162,10 @@ router.get('/:id', async (req, res) => {
  *               date:
  *                 type: string
  *                 format: date-time
- *                 description: Дата и время мероприятия
+ *                 description: Дата и время мероприятия (в формате ISO 8601)
  *               createdBy:
  *                 type: integer
- *                 description: ID создателя мероприятия
+ *                 description: ID создателя мероприятия (должен соответствовать существующему пользователю)
  *               category:
  *                 type: string
  *                 enum: ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое']
@@ -174,18 +184,19 @@ router.get('/:id', async (req, res) => {
  *             schema:
  *               $ref: '#/components/schemas/Event'
  *       400:
- *         description: Invalid input
+ *         description: Неверный ввод данных
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  *       500:
- *         description: Server error
+ *         description: Ошибка сервера
  *         content:
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
+
 // Создание мероприятия (POST /events)
 router.post('/', async (req, res) => {
         try {
@@ -202,12 +213,12 @@ router.post('/', async (req, res) => {
             if (!user) {
                 return res.status(400).json({ message: 'User not found' });
             }
-
+            
             //..
-            // Проверяем, существует ли категория с таким именем
-            const existingCategory = await Category.findOne({
-                where: { name: category }
+            const existingCategory = await Category.findAll({
+                where: { name: category.toLowerCase() } // Приводим к нижнему регистру
             });
+            
 
             if (!existingCategory) {
                 return res.status(400).json({ message: 'Invalid category' });
@@ -229,6 +240,70 @@ router.post('/', async (req, res) => {
         }
     });
 
+/**
+ * @swagger
+ * /events/{id}:
+ *   put:
+ *     summary: Обновляет мероприятие по ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID мероприятия (должен быть целым числом)
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 description: Название мероприятия
+ *               description:
+ *                 type: string
+ *                 description: Описание мероприятия
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Дата и время мероприятия (в формате ISO 8601)
+ *               createdBy:
+ *                 type: integer
+ *                 description: ID создателя мероприятия (должен соответствовать существующему пользователю)
+ *               category:
+ *                 type: string
+ *                 enum: ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое']
+ *                 description: Категория мероприятия
+ *             required: []
+ *     responses:
+ *       200:
+ *         description: Успешное обновление мероприятия
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Event'
+ *       400:
+ *         description: Неверный ввод данных или пользователь/категория не найдены
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       404:
+ *         description: Мероприятие не найдено
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Обновление мероприятия (PUT /events/:id)
 router.put('/:id', async (req, res) => {
         try {
@@ -250,7 +325,7 @@ router.put('/:id', async (req, res) => {
 
             //..
             
-            const existingCategory = await Category.findOne({
+            const existingCategory = await Category.findAll({
                 where: { name: category }
             });
 
@@ -273,6 +348,35 @@ router.put('/:id', async (req, res) => {
         }
     });
 
+/**
+ * @swagger
+ * /events/{id}:
+ *   delete:
+ *     summary: Удаляет мероприятие по ID
+ *     tags: [Events]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID мероприятия (должен быть целым числом)
+ *     responses:
+ *       204:
+ *         description: Успешное удаление мероприятия (нет содержимого)
+ *       404:
+ *         description: Мероприятие не найдено
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ *       500:
+ *         description: Ошибка сервера
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Error'
+ */
 // Удаление мероприятия (DELETE /events/:id)
 router.delete('/:id', async (req, res) => {
         try {
