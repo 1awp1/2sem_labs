@@ -20,6 +20,7 @@ import { fileURLToPath } from 'url';
 import publicRoutes from "./routes/public.js"; 
 import protectedRoutes from "./routes/index.js";
 import session from 'express-session'; 
+
 dotenv.config(); // Загружаем переменные окружения из .env (если он есть)
 
 const app = express(); // Создаем экземпляр приложения Express

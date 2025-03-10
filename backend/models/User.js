@@ -3,6 +3,7 @@ import { Model, DataTypes } from 'sequelize';
 import { sequelize } from '../config/db.js'; 
 import bcrypt from 'bcryptjs';
 
+
 const User = sequelize.define('User ', { 
     id: {
         type: DataTypes.INTEGER,
@@ -25,6 +26,18 @@ const User = sequelize.define('User ', {
         type: DataTypes.STRING,
         allowNull: false // Пароль обязателен
     },
+    failed_attempts: { // Поле для отслеживания неудачных попыток
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+    },
+    is_locked: { // Поле для блокировки аккаунта
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+    },
+    lock_until: { // Поле для времени блокировки
+        type: DataTypes.DATE,
+        allowNull: true
+    },
     createdAt: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW // Дата создания по умолчанию
@@ -45,7 +58,7 @@ User .beforeCreate(async (user) => {
 });
 
 // Метод для проверки пароля
-User .prototype.validPassword = async function(password) {
+User.prototype.validPassword = async function(password) {
     return await bcrypt.compare(password, this.password);
 };
 

@@ -1,4 +1,4 @@
-// routes/auth.js
+//routes/auth.js
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -24,11 +24,16 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ message: 'Email уже используется' });
         }
 
-        // Хеширование пароля
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        // Создание нового пользователя
-        const user = await User.create({ email, username, password: hashedPassword, name });
+        // Создание нового пользователя с инициализацией полей failed_attempts, is_locked и lock_until
+        const user = await User.create({
+            email,
+            username,
+            password,
+            name,
+            failed_attempts: 0, // Инициализация счетчика неудачных попыток
+            is_locked: false,    // Инициализация состояния блокировки
+            lock_until: null     // Инициализация времени блокировки
+        });
 
         res.status(201).json({ message: 'Регистрация успешна' });
     } catch (error) {
@@ -36,7 +41,6 @@ router.post('/register', async (req, res) => {
         res.status(500).json({ message: 'Ошибка сервера' });
     }
 });
-
 
 // Эндпоинт для авторизации
 router.post('/login', async (req, res) => {
@@ -46,7 +50,8 @@ router.post('/login', async (req, res) => {
     if (!email || !password) {
         return res.status(400).json({ message: 'Заполните все поля' });
     }
-
+    const trimmedEmail = email.trim();
+    const trimmedPassword = password.trim();
     try {
         // Поиск пользователя по email
         const user = await User.findOne({ where: { email } });
@@ -54,11 +59,48 @@ router.post('/login', async (req, res) => {
             return res.status(401).json({ message: 'Неверный email или пароль' });
         }
 
+        console.log('Создан пользователь с ID:', user.id);
+        console.log('Пользователь найден:', user.name);
+        console.log('Состояние блокировки:', user.is_locked);
+        
+        // Проверка блокировки аккаунта
+        const now = new Date();
+        if (user.is_locked && now < user.lock_until) {
+            return res.status(403).json({ message: 'Аккаунт заблокирован. Попробуйте позже.' });
+        }
+
+        // Сброс блокировки, если время блокировки истекло
+        if (user.is_locked && now >= user.lock_until) {
+            user.is_locked = false;
+            user.failed_attempts = 0;
+            user.lock_until = null;
+            await user.save();
+        }
+
         // Проверка пароля
-        const isMatch = await bcrypt.compare(password, user.password);
+        console.log('Введенный пароль:', trimmedPassword);
+        console.log('Хэш пароля из БД:', user.password);
+
+        // Проверка пароля
+        const isMatch = await user.validPassword(trimmedPassword);
         if (!isMatch) {
+            user.failed_attempts += 1;
+
+            // Проверка, превышает ли количество неудачных попыток лимит
+            if (user.failed_attempts >= 5) { // Изменено на >= чтобы учитывать 5 попыток
+                user.is_locked = true;
+                user.lock_until = new Date(Date.now() + 30 * 60 * 1000); // Блокируем на 30 минут
+                await user.save();
+                return res.status(403).json({ message: 'Аккаунт заблокирован. Попробуйте позже.' });
+            }
+
+            await user.save();
             return res.status(401).json({ message: 'Неверный email или пароль' });
         }
+        
+        // Успешная аутентификация
+        user.failed_attempts = 0; // Сбрасываем счетчик неудачных попыток
+        await user.save();
 
         // Генерация JWT
         const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
