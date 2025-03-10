@@ -1,6 +1,6 @@
 // models/Category.js
-const { DataTypes } = require('sequelize');
-const { sequelize } = require('../config/db');
+import { DataTypes } from 'sequelize';
+import { sequelize } from '../config/db.js'; 
 
 const Category = sequelize.define('Category', {
   id: {
@@ -15,7 +15,8 @@ const Category = sequelize.define('Category', {
   }
 }, {
   tableName: 'categories',
-  timestamps: false // Или true, если вам нужно отслеживать время создания/изменения
+  timestamps: false // Или true,если нужно отслеживать время создания/изменения
 });
 
-module.exports = Category;
+// Используем именованный экспорт
+export default Category;
