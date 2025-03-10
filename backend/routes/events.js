@@ -1,13 +1,19 @@
-    // routes/events.js
-    const express = require('express');
-    const router = express.Router();
-    const Event = require('../models/Event');
-    const User = require('../models/User'); // Необходимо для связи с пользователем
-//...
-    const Category = require('../models/Category'); // Импортируйте вашу модель Category
-    const { Op } = require('sequelize'); // Для фильтрации
-//...
+// routes/events.js
+import express from 'express';
+import passport from "passport";
+import Event from '../models/Event.js';
+import User from '../models/User.js'; // Необходимо для связи с пользователем
+import Category from '../models/Category.js'; // Импортируйте вашу модель Category
+import { Op } from 'sequelize'; // Для фильтрации
+import { getEvents } from '../controllers/eventController.js';
 
+const router = express.Router();
+
+// Применяем аутентификацию ко всем маршрутам внутри этого файла
+router.use(passport.authenticate("jwt", { session: false }));
+
+// Защищенный маршрут для создания событий
+router.get('/events', getEvents);
 /**
  * @swagger
  * tags:
@@ -392,4 +398,4 @@ router.delete('/:id', async (req, res) => {
         }
     });
 
-    module.exports = router;
+    export default router;

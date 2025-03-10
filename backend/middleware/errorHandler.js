@@ -1,5 +1,5 @@
 // middleware/errorHandler.js
-// Сделано на будущие для оптимизации выдачи ошибок при запросах
+// Сделано на будущее для оптимизации выдачи ошибок при запросах
 function errorHandler(err, req, res, next) {
     console.error(err.stack);
 
@@ -45,12 +45,12 @@ function errorHandler(err, req, res, next) {
         statusCode = 429; // Too Many Requests
     }
 
-     // Отлавливаем ошибку, если поле отсутствует (особенно актуально для required полей в моделях)
-     if (err.name === 'SequelizeDatabaseError' && err.message.includes('column cannot be null')) {
-         statusCode = 400;
-         message = 'Отсутствуют необходимые данные.'; // Более информативное сообщение
-         // Можно извлечь имя поля из err.message, если нужно более точное сообщение
-     }
+    // Отлавливаем ошибку, если поле отсутствует (особенно актуально для required полей в моделях)
+    if (err.name === 'SequelizeDatabaseError' && err.message.includes('column cannot be null')) {
+        statusCode = 400;
+        message = 'Отсутствуют необходимые данные.'; // Более информативное сообщение
+        // Можно извлечь имя поля из err.message, если нужно более точное сообщение
+    }
 
     res.status(statusCode).json({
         error: {
@@ -60,4 +60,5 @@ function errorHandler(err, req, res, next) {
     });
 }
 
-module.exports = errorHandler;
+// Используем именованный экспорт
+export default errorHandler;

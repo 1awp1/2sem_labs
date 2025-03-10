@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const User = require('../models/User');
+import User from '../models/User.js'; 
+
 
 /**
  * @swagger
@@ -22,9 +23,14 @@ const User = require('../models/User');
  *                 type: string
  *                 description: Email пользователя
  *                 format: email
+ *               password:
+ *                 type: string
+ *                 description: Пароль пользователя
+ *                 format: password
  *             required:
  *               - name
  *               - email
+ *               - password
  *     responses:
  *       201:
  *         description: Успешное создание пользователя
@@ -47,10 +53,10 @@ const User = require('../models/User');
  */
 router.post('/', async (req, res) => {
     try {
-        const { name, email } = req.body;
+        const { name, email, password } = req.body;
 
-        if (!name || !email) {
-            return res.status(400).json({ message: 'Please provide name and email' });
+        if (!name || !email || !password) {
+            return res.status(400).json({ message: 'Please provide name,email and password' });
         }
 
         // Validate email format (basic check)
@@ -64,7 +70,7 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Email already exists' });
         }
 
-        const user = await User.create({ name, email });
+        const user = await User.create({ name, email, password });
         res.status(201).json(user);
     } catch (error) {
         console.error(error);
@@ -124,4 +130,4 @@ router.use((err, req, res, next) => {
   next(err);  // Pass the error to the next error handling middleware
 });
 
-module.exports = router;
+export default router;
