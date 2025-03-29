@@ -1,6 +1,6 @@
 //routes/users.js
 import { Request, Response, Router } from 'express';
-import User from '../models/User';
+import User from '@models/User';
 import { ValidationError, UniqueConstraintError } from 'sequelize';
 
 // Интерфейс для типизации тела запроса
@@ -149,7 +149,7 @@ router.post<Record<string, never>, unknown, CreateUserRequestBody>(
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.findAll({
-      attributes: ['id', 'name', 'email', 'username'],
+      attributes: ['id', 'name', 'email', 'username', 'password'],
     });
     res.status(200).json(users);
   } catch (error) {

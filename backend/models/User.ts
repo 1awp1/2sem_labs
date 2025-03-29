@@ -1,6 +1,6 @@
 // models/User.ts
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '../config/db'; // Убедитесь, что импорт правильный
+import { sequelize } from '@config/db'; // Убедитесь, что импорт правильный
 import bcrypt from 'bcryptjs';
 
 interface UserAttributes {

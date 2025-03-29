@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/User';
+import User from '@models/User';
 import dotenv from 'dotenv';
 import { ValidationError } from 'sequelize';
 
@@ -31,6 +31,7 @@ interface LoginResponse {
     id: number;
     name: string;
     email: string;
+    password: string;
   };
 }
 
@@ -177,6 +178,7 @@ router.post<
           id: user.id,
           name: user.name,
           email: user.email,
+          password: user.password,
         },
       });
     } catch (error) {
