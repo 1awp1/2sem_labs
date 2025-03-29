@@ -6,7 +6,7 @@ import {
 } from 'passport-jwt';
 import passport from 'passport';
 import { config } from 'dotenv';
-import User from '../models/User';
+import User from '@models/User';
 
 config();
 

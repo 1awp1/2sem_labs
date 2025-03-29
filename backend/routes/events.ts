@@ -1,10 +1,10 @@
 import express, { type Request, type Response, type Router } from 'express';
 import passport from 'passport';
 import { type WhereOptions } from 'sequelize';
-import Event from '../models/Event';
-import User from '../models/User';
-import Category from '../models/Category';
-import { getEvents } from '../controllers/eventController';
+import Event from '@models/Event';
+import User from '@models/User';
+import Category from '@models/Category';
+import { getEvents } from '@controllers/eventController';
 
 const router: Router = express.Router();
 
