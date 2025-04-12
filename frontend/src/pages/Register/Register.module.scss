@@ -1,0 +1,105 @@
+.registerPage {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #f9fbfd;
+
+  .backgroundAnimation {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.1) 0%, rgba(46, 204, 113, 0.1) 100%);
+    z-index: 0;
+  }
+
+  .registerContainer {
+    display: flex;
+    max-width: 1000px;
+    width: 90%;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    z-index: 1;
+    margin: 2rem;
+  }
+
+  .logoSection {
+    flex: 1;
+    padding: 4rem;
+    background: linear-gradient(135deg, #3498db, #2ecc71);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+
+    .logo {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      margin-bottom: 2rem;
+      object-fit: cover;
+      border: 3px solid white;
+    }
+
+    .title {
+      font-size: 2.2rem;
+      margin-bottom: 1rem;
+      font-weight: 700;
+
+      span {
+        font-weight: 800;
+      }
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      opacity: 0.9;
+    }
+  }
+
+  .formSection {
+    flex: 1;
+    padding: 4rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+
+    .registerForm {
+      width: 100%;
+    }
+
+    .loginLink {
+      margin-top: 2rem;
+      text-align: center;
+      color: #7f8c8d;
+
+      a {
+        color: #3498db;
+        text-decoration: none;
+        font-weight: 500;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .registerContainer {
+    flex-direction: column !important;
+
+    .logoSection, .formSection {
+      padding: 2rem !important;
+    }
+  }
+}
