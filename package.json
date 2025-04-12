@@ -1,0 +1,23 @@
+{
+  "name": "2sem_labs",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "prepare": "husky install",
+    "lint:frontend": "cd frontend && npm run lint",
+    "format:frontend": "cd frontend && npm run format"
+  },
+  "lint-staged": {
+    "frontend/**/*.{js,jsx,ts,tsx}": [
+      "npm --prefix frontend run lint",
+      "npm --prefix frontend run format"
+    ],
+    "frontend/**/*.{json,css,scss,md}": [
+      "npm --prefix frontend run format"
+    ]
+  },
+  "devDependencies": {
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2"
+  }
+}

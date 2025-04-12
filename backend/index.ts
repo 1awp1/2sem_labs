@@ -38,14 +38,26 @@ const port = process.env.PORT || 3000;
 
 // Rate limiting
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 100,
-  message: 'Слишком много запросов с вашего IP, попробуйте позже.',
+  windowMs: 15 * 60 * 1000, // 15 минут
+  max: 500, // Увеличьте лимит
+  message: 'Too many requests, please try again later.',
+  skip: (req) => {
+    // Пропускаем лимит для локальных запросов
+    return req.ip === '127.0.0.1' || req.ip === '::1';
+  },
 });
 
 // Middlewares
 app.use(limiter);
-app.use(cors());
+app.use(
+  cors({
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  }),
+);
+app.options('*', cors());
 app.use(
   express.json({
     strict: true,

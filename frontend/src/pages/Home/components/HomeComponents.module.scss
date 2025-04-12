@@ -1,0 +1,88 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  
+  .title {
+    font-size: 3rem;
+    color: #2c3e50;
+    margin-bottom: 1rem;
+    background: linear-gradient(90deg, #3498db, #2ecc71);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradientShift 8s ease infinite;
+    background-size: 200% 200%;
+  }
+
+  .subtitle {
+    font-size: 1.5rem;
+    color: #7f8c8d;
+    margin-bottom: 3rem;
+  }
+
+  .actions {
+    margin-bottom: 3rem;
+    
+    .primaryButton {
+      display: inline-block;
+      padding: 1rem 2rem;
+      background-color: #3498db;
+      color: white;
+      border-radius: 50px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+      
+      &:hover {
+        background-color: #2980b9;
+        transform: translateY(-3px);
+        box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+      }
+    }
+  }
+
+  .features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 3rem;
+
+    .featureCard {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      transition: all 0.3s ease;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+
+      &:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      .featureIcon {
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+      }
+
+      h3 {
+        color: #2c3e50;
+        margin-bottom: 1rem;
+      }
+
+      p {
+        color: #7f8c8d;
+        line-height: 1.6;
+      }
+    }
+  }
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}

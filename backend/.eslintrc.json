@@ -16,12 +16,11 @@
   "settings": {
     "import/resolver": {
       "typescript": {
-        "alwaysTryTypes": true  // Пытаться резолвить алиасы даже для `../`
+        "alwaysTryTypes": true // Пытаться резолвить алиасы даже для `../`
       }
     }
   },
   "env": {
     "node": true
   }
-  
 }
