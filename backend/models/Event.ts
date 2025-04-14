@@ -52,7 +52,7 @@ Event.init(
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [3, 100],
+        len: [1, 100],
       },
     },
     description: {

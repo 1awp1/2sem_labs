@@ -8,6 +8,7 @@ export const categories = [
 ] as const;
 
 export type EventCategory = (typeof categories)[number];
+export const categoriesList: string[] = [...categories] as string[];
 
 export interface Event {
   id: number;

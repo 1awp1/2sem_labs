@@ -6,10 +6,8 @@ import { getEvents, createEvent, updateEvent, deleteEvent } from '@api/eventServ
 import EventList from '../Events/EventList/EventList';
 import EventModal from './EventModal';
 import ConfirmationModal from './ConfirmationModal';
-import { Event, EventFormValues } from '@/types/event';
+import { Event, EventFormValues, EventCategory, categoriesList } from '@/types/event';
 import styles from './Events.module.scss';
-
-const CATEGORIES: string[] = ['концерт', 'лекция', 'выставка', 'семинар', 'мастер-класс', 'другое'];
 
 export default function Events() {
   const [events, setEvents] = useState<Event[]>([]);
@@ -19,6 +17,7 @@ export default function Events() {
   const [currentEvent, setCurrentEvent] = useState<Event | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [eventToDelete, setEventToDelete] = useState<number | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<EventCategory | 'все'>('все');
   
   const { getAuthData, logout } = useAuth();
   const currentUser = getAuthData()?.user;
@@ -55,6 +54,11 @@ export default function Events() {
       isMounted = false;
     };
   }, [fetchEvents]);
+
+  const filteredEvents = useMemo(() => {
+    if (selectedCategory === 'все') return events;
+    return events.filter(event => event.category === selectedCategory);
+  }, [events, selectedCategory]);
 
   const openModal = useCallback((event: Event | null = null) => {
     setCurrentEvent(event);
@@ -127,12 +131,12 @@ export default function Events() {
 
   const eventList = useMemo(() => (
     <EventList 
-      events={events}
+      events={filteredEvents}
       onEdit={handleEdit}
       onDelete={handleDeleteClick}
       currentUserId={currentUser?.id} 
     />
-  ), [events, handleEdit, handleDeleteClick, currentUser?.id]);
+  ), [filteredEvents, handleEdit, handleDeleteClick, currentUser?.id]);
 
   if (loading) return <div className={styles.loading}>Загрузка...</div>;
   if (error) return <div className={styles.error}>{error}</div>;
@@ -141,6 +145,18 @@ export default function Events() {
     <div className={styles.events}>
       <div className={styles.header}>
         <h1>Мероприятия</h1>
+        <div className={styles.filterContainer}>
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value as EventCategory | 'все')}
+            className={styles.categoryFilter}
+          >
+            <option value="все">Все категории</option>
+            {categoriesList.map(category => (
+              <option key={category} value={category}>{category}</option>
+            ))}
+          </select>
+        </div>
         <div className={styles.userActions}>
           {currentUser && (
             <span className={styles.userGreeting}>
@@ -172,7 +188,7 @@ export default function Events() {
         onClose={closeModal}
         onSubmit={handleCreateOrUpdateEvent}
         event={currentEvent}
-        categories={CATEGORIES}
+        categories={categoriesList}
       />
 
       <ConfirmationModal

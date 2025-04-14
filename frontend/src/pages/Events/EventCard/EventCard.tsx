@@ -12,7 +12,10 @@ export default function EventCard({ event, isOwner, onEdit, onDelete }: EventCar
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <h3>{event.title}</h3>
+        <div className={styles.cardTitle}>
+          <h3>{event.title}</h3>
+          <span className={styles.category}>{event.category}</span>
+        </div>
         {isOwner && (
           <div className={styles.cardActions}>
             {onEdit && (
@@ -38,7 +41,6 @@ export default function EventCard({ event, isOwner, onEdit, onDelete }: EventCar
       <p className={styles.description}>{event.description}</p>
       
       <div className={styles.meta}>
-        <span>Категория: {event.category}</span>
         <span>Дата: {new Date(event.date).toLocaleDateString()}</span>
         {event.creator && <span>Автор: {event.creator.name}</span>}
       </div>

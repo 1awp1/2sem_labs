@@ -7,7 +7,6 @@ import styles from './LoginForm.module.scss';
 import { useState } from 'react';
 import { AxiosError } from 'axios';
 
-
 export default function LoginForm() {
   const { 
     register, 
@@ -30,7 +29,6 @@ export default function LoginForm() {
         password: values.password.trim()
       });
       
-      // Приводим данные к ожидаемому формату AuthUser
       const authUser: AuthUser = {
         user: {
           id: response.user.id,
@@ -49,19 +47,19 @@ export default function LoginForm() {
       const err = error as AxiosError<{message?: string}>;
       
       if (err.response) {
-        // Обработка ошибок от бэкенда
         const errorMessage = err.response.data?.message || 'Login failed';
         
-        // Специальная обработка для заблокированного аккаунта
         if (errorMessage.includes('заблокирован')) {
           setError('Ваш аккаунт временно заблокирован. Попробуйте позже.');
+        } else if (errorMessage.includes('Неверный email или пароль')) {
+          setError('Неверный email или пароль. Пожалуйста, попробуйте снова.');
         } else {
           setError(errorMessage);
         }
-      } else if (err.message) {
-        setError(err.message);
+      } else if (err.request) {
+        setError('Не удалось подключиться к серверу. Проверьте интернет-соединение.');
       } else {
-        setError('An unknown error occurred');
+        setError('Произошла неизвестная ошибка');
       }
     } finally {
       setIsSubmitting(false);
@@ -69,8 +67,19 @@ export default function LoginForm() {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className={styles.form}>
-      {error && <div className={styles.error}>{error}</div>}
+    <form 
+      onSubmit={(e) => {
+        e.preventDefault(); // Важное изменение - предотвращаем перезагрузку здесь
+        handleSubmit(onSubmit)();
+      }} 
+      className={styles.form}
+      noValidate // Добавляем атрибут noValidate
+    >
+      {error && (
+        <div className={styles.error}>
+          {error}
+        </div>
+      )}
       
       <div className={styles.formGroup}>
         <label htmlFor="email">Email</label>
@@ -86,7 +95,11 @@ export default function LoginForm() {
           placeholder="Email"
           disabled={isSubmitting}
         />
-        {errors.email && <span className={styles.errorMessage}>{errors.email.message}</span>}
+        {errors.email && (
+          <span className={styles.errorMessage}>
+            {errors.email.message}
+          </span>
+        )}
       </div>
 
       <div className={styles.formGroup}>
@@ -104,7 +117,11 @@ export default function LoginForm() {
           placeholder="Password"
           disabled={isSubmitting}
         />
-        {errors.password && <span className={styles.errorMessage}>{errors.password.message}</span>}
+        {errors.password && (
+          <span className={styles.errorMessage}>
+            {errors.password.message}
+          </span>
+        )}
       </div>
 
       <button 
