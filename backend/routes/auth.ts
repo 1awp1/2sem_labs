@@ -61,9 +61,17 @@ router.post<
     }
 
     try {
-      const existingUser = await User.findOne({ where: { email } });
-      if (existingUser) {
+      // Проверяем занятость email
+      const existingUserByEmail = await User.findOne({ where: { email } });
+      if (existingUserByEmail) {
         res.status(400).json({ message: 'Email уже используется' });
+        return;
+      }
+
+      // Проверяем занятость username
+      const existingUserByUsername = await User.findOne({ where: { username } });
+      if (existingUserByUsername) {
+        res.status(400).json({ message: 'Username пользователя уже занято' });
         return;
       }
 
