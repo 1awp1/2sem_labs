@@ -16,10 +16,9 @@ export interface AuthUser {
     username: string;
     email: string;
     name: string;
-    token: string;
   };
   token: string;
-}
+};
 
 export interface RegisterFormValues {
   name: string;

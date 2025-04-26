@@ -1,6 +1,6 @@
-import { Event } from '../../../types/event';
-import EventCard from '../EventCard/EventCard';
-import styles from './EventList.module.scss';
+import { Event } from "../../../types/event";
+import EventCard from "../EventCard/EventCard";
+import styles from "./EventList.module.scss";
 
 interface EventListProps {
   events: Event[];
@@ -12,7 +12,7 @@ interface EventListProps {
 export default function EventList({ events, currentUserId, onEdit, onDelete }: EventListProps) {
   return (
     <div className={styles.list}>
-      {events.map(event => (
+      {events.map((event) => (
         <EventCard
           key={event.id}
           event={event}
