@@ -17,13 +17,14 @@ export interface Event {
   date: string;
   createdBy: number;
   category: EventCategory;
-  createdAt: string;
-  updatedAt: string;
   creator?: {
     id: number;
     name: string;
+    lastName?: string;
     email: string;
-  };
+  } | null;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface EventFormValues {

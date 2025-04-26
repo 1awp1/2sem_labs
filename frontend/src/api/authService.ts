@@ -8,8 +8,12 @@ interface LoginResponse {
   user: {
     id: number;
     name: string;
+    lastName: string;
+    middleName?: string | null;
     email: string;
-    username?: string;
+    username: string;
+    gender?: 'male' | 'female' | 'other' | null;
+    birthDate?: string | null;
   };
 }
 
@@ -22,9 +26,13 @@ export const login = async (values: LoginFormValues): Promise<AuthUser> => {
   return {
     user: {
       id: response.data.user.id,
-      username: response.data.user.username || response.data.user.name,
+      username: response.data.user.username,
       email: response.data.user.email,
       name: response.data.user.name,
+      lastName: response.data.user.lastName,
+      middleName: response.data.user.middleName || undefined,
+      gender: response.data.user.gender || undefined,
+      birthDate: response.data.user.birthDate || undefined,
     },
     token: response.data.token,
   };
@@ -35,9 +43,13 @@ export const register = async (values: RegisterFormValues): Promise<void> => {
     "/auth/register",
     {
       name: values.name,
+      lastName: values.lastName,
+      middleName: values.middleName || null,
       email: values.email,
       username: values.username,
       password: values.password,
+      gender: values.gender,
+      birthDate: values.birthDate,
     },
     {
       withCredentials: true,
@@ -76,7 +88,11 @@ export const updateUser = async (
   userData: Partial<User>,
   token: string
 ): Promise<User> => {
-  const response = await axios.put(`/users/${id}`, userData, {
+  const response = await axios.put(`/users/${id}`, {
+    ...userData,
+    gender: userData.gender || null,
+    birthDate: userData.birthDate || null,
+  }, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

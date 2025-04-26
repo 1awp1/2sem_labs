@@ -8,15 +8,23 @@ import { passport } from '@config/passport';
 // Интерфейс для типизации тела запроса
 interface CreateUserRequestBody {
   name: string;
+  lastName: string;
+  middleName: string | null;
   email: string;
   password: string;
   username: string;
+  gender?: 'male' | 'female' | 'other' | null;
+  birthDate?: string | null;
 }
 
 interface UpdateUserRequestBody {
   name?: string;
+  lastName?: string;
+  middleName?: string | null;
   email?: string;
   username?: string;
+  gender?: 'male' | 'female' | 'other' | null;
+  birthDate?: string | null;
 }
 
 // Типизация для обработки ошибок
@@ -30,8 +38,12 @@ interface ErrorResponse {
 interface UserResponse {
   id: number;
   name: string;
+  lastName: string;
+  middleName?: string | null;
   email: string;
   username: string;
+  gender?: 'male' | 'female' | 'other' | null;
+  birthDate?: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -100,11 +112,22 @@ router.post<Record<string, never>, unknown, CreateUserRequestBody>(
     res: Response,
   ): Promise<void> => {
     try {
-      const { name, email, password, username } = req.body;
+      const { name, email, password, username, lastName, middleName, gender, birthDate } =
+        req.body;
 
-      if (!name || !email || !password || !username) {
+      if (
+        !name ||
+        !email ||
+        !password ||
+        !username ||
+        !lastName ||
+        !middleName ||
+        !gender ||
+        !birthDate
+      ) {
         res.status(400).json({
-          message: 'Please provide name, email, and password',
+          message:
+            'Please provide name, lastName, middleNmae, email, gender, birthDate and password',
         });
         return;
       }
@@ -123,9 +146,13 @@ router.post<Record<string, never>, unknown, CreateUserRequestBody>(
 
       const user = await User.create({
         name,
+        lastName,
+        middleName,
         email,
         password,
         username,
+        gender,
+        birthDate
       });
 
       res.status(201).json(user);
@@ -178,7 +205,17 @@ router.post<Record<string, never>, unknown, CreateUserRequestBody>(
 router.get('/', async (req: Request, res: Response): Promise<void> => {
   try {
     const users = await User.findAll({
-      attributes: ['id', 'name', 'email', 'username', 'password'],
+      attributes: [
+        'id',
+        'name',
+        'lastName',
+        'middleName',
+        'gender',
+        'birthDate',
+        'email',
+        'username',
+        'password',
+      ],
     });
     res.status(200).json(users);
   } catch (error) {
@@ -260,7 +297,7 @@ router.get('/me/events', async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
     const userId = parseInt(id, 10);
-   
+
     console.log('Получен ID пользователя:', id); // Добавляем логирование
     const events = await Event.findAll({
       where: { createdBy: userId },
@@ -268,7 +305,7 @@ router.get('/me/events', async (req: Request, res: Response): Promise<void> => {
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'name', 'username'], // Указываем только нужные поля пользователя
+          attributes: ['id', 'name', 'lastName', 'middleName', 'gender', 'birthDate', 'username'], // Указываем только нужные поля пользователя
         },
         // Можно добавить другие ассоциации, если они есть
       ],
@@ -326,7 +363,6 @@ router.get('/me', async (req: Request, res: Response): Promise<void> => {
   }
 });
 
-
 /**
  * @swagger
  * /users/me:
@@ -364,12 +400,16 @@ router.get('/me', async (req: Request, res: Response): Promise<void> => {
  *         description: Ошибка сервера
  */
 // Обновление пользователя
-router.put<{id: string}, UserResponse | ErrorResponse, UpdateUserRequestBody>(
+router.put<{ id: string }, UserResponse | ErrorResponse, UpdateUserRequestBody>(
   '/:id',
   passport.authenticate('jwt', { session: false }),
   async (
-    req: Request<{id: string}, UserResponse | ErrorResponse, UpdateUserRequestBody>,
-    res: Response<UserResponse | ErrorResponse>
+    req: Request<
+      { id: string },
+      UserResponse | ErrorResponse,
+      UpdateUserRequestBody
+    >,
+    res: Response<UserResponse | ErrorResponse>,
   ): Promise<void> => {
     try {
       // Теперь req.user точно будет существовать после passport.authenticate
@@ -377,24 +417,30 @@ router.put<{id: string}, UserResponse | ErrorResponse, UpdateUserRequestBody>(
         throw new Error('Пользователь не найден в запросе');
       }
 
-      const { name, email, username } = req.body;
+      const { name, lastName, middleName, email, username, gender, birthDate } = req.body;
       const { id } = req.params;
       const userId = parseInt(id, 10);
 
       // Проверка ID из токена и из URL
       if (req.user.id !== userId) {
-        res.status(403).json({ message: 'Нет прав на обновление этого пользователя' });
+        res
+          .status(403)
+          .json({ message: 'Нет прав на обновление этого пользователя' });
         return;
       }
 
       // Проверка наличия хотя бы одного поля для обновления
-      if (!name && !email && !username) {
-        res.status(400).json({ message: 'Необходимо указать хотя бы одно поле для обновления' });
+      if (!name && !lastName && !middleName && !email && !username) {
+        res
+          .status(400)
+          .json({
+            message: 'Необходимо указать хотя бы одно поле для обновления',
+          });
         return;
       }
 
       const user = await User.findByPk(userId);
-      
+
       if (!user) {
         res.status(404).json({ message: 'Пользователь не найден' });
         return;
@@ -420,8 +466,12 @@ router.put<{id: string}, UserResponse | ErrorResponse, UpdateUserRequestBody>(
 
       // Обновляем только указанные поля
       if (name) user.name = name;
+      if (lastName) user.lastName = lastName;
+      if (middleName !== undefined) user.middleName = middleName || null;
       if (email) user.email = email;
       if (username) user.username = username;
+      if (gender !== undefined) user.gender = gender;
+      if (birthDate !== undefined) user.birthDate = birthDate;
 
       await user.save();
 
@@ -429,10 +479,14 @@ router.put<{id: string}, UserResponse | ErrorResponse, UpdateUserRequestBody>(
       const response: UserResponse = {
         id: user.id,
         name: user.name,
+        lastName: user.lastName,
+        middleName: user.middleName || null,
+        gender: user.gender,
+        birthDate: user.birthDate,
         email: user.email,
         username: user.username,
         createdAt: user.createdAt.toISOString(),
-        updatedAt: user.updatedAt.toISOString()
+        updatedAt: user.updatedAt.toISOString(),
       };
 
       res.status(200).json(response);
@@ -440,22 +494,22 @@ router.put<{id: string}, UserResponse | ErrorResponse, UpdateUserRequestBody>(
       console.error('Ошибка при обновлении пользователя:', error);
 
       if (error instanceof ValidationError) {
-        const messages = error.errors.map(err => err.message).join(', ');
+        const messages = error.errors.map((err) => err.message).join(', ');
         res.status(400).json({ message: `Ошибка валидации: ${messages}` });
         return;
       }
 
       if (error instanceof UniqueConstraintError) {
-        res.status(400).json({ message: 'Email или username уже используются' });
+        res
+          .status(400)
+          .json({ message: 'Email или username уже используются' });
         return;
       }
 
       res.status(500).json({ message: 'Ошибка сервера' });
     }
-  }
+  },
 );
-
-
 
 // Middleware обработки ошибок
 router.use((err: ErrorWithStatus, req: Request, res: Response): void => {

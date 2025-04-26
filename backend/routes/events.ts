@@ -54,6 +54,7 @@ interface EventResponse {
   creator?: {
     id: number;
     name: string;
+    lastName: string;
     email: string;
   };
 }
@@ -77,6 +78,7 @@ function formatEventResponse(event: Event): EventResponse {
       ? {
           id: event.creator.id,
           name: event.creator.name,
+          lastName: event.creator.lastName,
           email: event.creator.email,
         }
       : undefined,
@@ -151,7 +153,7 @@ router.get<
           {
             model: User,
             as: 'creator',
-            attributes: ['id', 'name', 'email'],
+            attributes: ['id', 'name', 'lastName', 'email'],
           },
         ],
       });
@@ -212,7 +214,7 @@ router.get<EventRequestParams, EventResponse | ErrorResponse>(
           {
             model: User,
             as: 'creator',
-            attributes: ['id', 'name', 'email'],
+            attributes: ['id', 'name', 'lastName', 'email'],
           },
         ],
       });
@@ -297,10 +299,24 @@ router.post<EmptyParams, EventResponse | ErrorResponse, EventRequestBody>(
         category,
       });
 
+      const createdEvent = await Event.findByPk(event.id, {
+        include: [
+          {
+            model: User,
+            as: 'creator',
+            attributes: ['id', 'name', 'lastName', 'email'],
+          },
+        ],
+      });
+      if (!createdEvent) {
+        res.status(500).json({ message: 'Failed to retrieve created event' });
+        return;
+      }
+
       console.log(
         `[POST /events] Мероприятие успешно создано. ID: ${event.id}`,
       );
-      res.status(201).json(formatEventResponse(event));
+      res.status(201).json(formatEventResponse(createdEvent));
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
@@ -351,49 +367,41 @@ router.put<EventRequestParams, EventResponse | ErrorResponse, EventRequestBody>(
     res: Response<EventResponse | ErrorResponse>,
   ) => {
     try {
-      const { title, description, date, createdBy, category } = req.body;
-      const event = await Event.findByPk(req.params.id);
+      const event = await Event.findByPk(req.params.id, {
+        include: [
+          {
+            model: User,
+            as: 'creator',
+            attributes: ['id', 'name', 'lastName', 'email'],
+          },
+        ],
+      });
 
       if (!event) {
         res.status(404).json({ message: 'Event not found' });
         return;
       }
 
-      if (createdBy) {
-        const user = await User.findByPk(createdBy);
-        if (!user) {
-          res.status(400).json({ message: 'User not found' });
-          return;
-        }
-      }
+      await event.update(req.body);
 
-      if (category) {
-        const existingCategory = await Category.findAll({
-          where: { name: category },
-        });
-
-        if (!existingCategory) {
-          res.status(400).json({ message: 'Invalid category' });
-          return;
-        }
-      }
-
-      await event.update({
-        title: title || event.title,
-        description: description || event.description,
-        date: date || event.date,
-        createdBy: createdBy || event.createdBy,
-        category: category || event.category,
+      // Перезагружаем мероприятие с информацией о создателе
+      const updatedEvent = await Event.findByPk(req.params.id, {
+        include: [
+          {
+            model: User,
+            as: 'creator',
+            attributes: ['id', 'name', 'lastName', 'email'],
+          },
+        ],
       });
 
-      res.status(200).json(formatEventResponse(event));
+      res.status(200).json(formatEventResponse(updatedEvent!));
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Server error' });
     }
   },
 );
-
 /**
  * @swagger
  * /events/{id}:

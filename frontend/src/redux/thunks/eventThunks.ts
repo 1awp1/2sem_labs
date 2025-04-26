@@ -1,19 +1,23 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
-import {
-  createEvent as createEventApi,
-  updateEvent as updateEventApi,
-} from "@/api/eventService"; // Убрали неиспользуемый deleteEventApi
 import { EventFormValues } from "@/types/event";
 import axios from "axios";
 
 export const createNewEvent = createAsyncThunk(
   "events/create",
   async (
-    { eventData, userId }: { eventData: EventFormValues; userId: number },
+    { eventData, userId }: { eventData: EventFormValues; userId: number; },
     { rejectWithValue }
   ) => {
     try {
-      return await createEventApi(eventData, userId);
+      const response = await axios.post('/events', {
+        ...eventData,
+        createdBy: userId
+      }, {
+        params: {
+          include: "creator" 
+        }
+      });
+      return response.data;
     } catch (error: unknown) {
       if (error instanceof Error) {
         return rejectWithValue(error.message);
@@ -26,28 +30,38 @@ export const createNewEvent = createAsyncThunk(
 export const updateExistingEvent = createAsyncThunk(
   "events/update",
   async (
-    { id, eventData, userId }: { id: number; eventData: EventFormValues; userId: number },
+    { id, eventData }: { id: number; eventData: EventFormValues; userId: number },
     { rejectWithValue }
   ) => {
     try {
-      return await updateEventApi(id, eventData, userId);
+      const response = await axios.put(`/events/${id}`, eventData, {
+        params: {
+          include: "creator" // Явно запрашиваем информацию о создателе
+        }
+      });
+      return response.data;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return rejectWithValue(error.message);
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || error.message);
       }
       return rejectWithValue("Неизвестная ошибка");
     }
   }
 );
+
 export const fetchEventsList = createAsyncThunk(
   "events/fetchAll",
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get("/events");
+      const response = await axios.get("/events", {
+        params: {
+          include: "creator" // Явно запрашиваем информацию о создателе
+        }
+      });
       return response.data;
     } catch (error: unknown) {
-      if (error instanceof Error) {
-        return rejectWithValue(error.message);
+      if (axios.isAxiosError(error)) {
+        return rejectWithValue(error.response?.data?.message || error.message);
       }
       return rejectWithValue("Неизвестная ошибка");
     }

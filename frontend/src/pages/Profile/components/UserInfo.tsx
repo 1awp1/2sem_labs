@@ -12,9 +12,13 @@ interface UserInfoProps {
 
 interface FormErrors {
   name?: string;
+  lastName?: string;
+  middleName?: string;
   email?: string;
   username?: string;
   general?: string;
+  gender?: string;
+  birthDate?: string;
 }
 interface ServerErrorResponse {
   message?: string;
@@ -38,6 +42,9 @@ export default function UserInfo({ user, onUpdate, editable = false }: UserInfoP
   const [showSuccess, setShowSuccess] = useState(false);
   const [fieldsDisabled, setFieldsDisabled] = useState(false);
 
+  // Регулярное выражение для проверки русских и английских букв
+  const nameRegex = /^[a-zA-Zа-яА-ЯёЁ]+$/;
+
   useEffect(() => {
     if (user) {
       setFormData(user);
@@ -45,7 +52,7 @@ export default function UserInfo({ user, onUpdate, editable = false }: UserInfoP
     }
   }, [user]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     if (fieldsDisabled) return;
 
     const { name, value } = e.target;
@@ -59,10 +66,42 @@ export default function UserInfo({ user, onUpdate, editable = false }: UserInfoP
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
+    // Валидация пола
+    if (!formData?.gender) {
+      newErrors.gender = "Укажите пол";
+    }
+    // Валидация даты рождения
+    if (!formData?.birthDate) {
+      newErrors.birthDate = "Укажите дату рождения";
+    } else if (new Date(formData.birthDate) >= new Date()) {
+      newErrors.birthDate = "Дата рождения должна быть в прошлом";
+    }
+
+    // Валидация имени
     if (!formData?.name?.trim()) {
       newErrors.name = "Имя обязательно";
-    } else if (/^\d/.test(formData.name)) {
-      newErrors.name = "Имя не должно начинаться с цифры";
+    } else if (!nameRegex.test(formData.name)) {
+      newErrors.name = "Имя может содержать только буквы и дефисы";
+    } else if (formData.name.trim().length === 0) {
+      newErrors.name = "Имя не может состоять только из пробелов";
+    }
+
+    // Валидация фамилии
+    if (!formData?.lastName?.trim()) {
+      newErrors.lastName = "Фамилия обязательна";
+    } else if (!nameRegex.test(formData.lastName)) {
+      newErrors.lastName = "Фамилия может содержать только буквы и дефисы";
+    } else if (formData.lastName.trim().length === 0) {
+      newErrors.lastName = "Фамилия не может состоять только из пробелов";
+    }
+
+    // Валидация отчества (если заполнено)
+    if (formData?.middleName && formData.middleName.trim()) {
+      if (!nameRegex.test(formData.middleName)) {
+        newErrors.middleName = "Отчество может содержать только буквы и дефисы";
+      }
+    } else if (formData?.middleName && formData.middleName.trim().length === 0) {
+      newErrors.middleName = "Отчество не может состоять только из пробелов";
     }
 
     if (!formData?.email?.trim()) {
@@ -119,16 +158,16 @@ export default function UserInfo({ user, onUpdate, editable = false }: UserInfoP
       if (axiosError.response?.status === 409) {
         const serverErrors = axiosError.response.data?.errors || {};
         const newErrors: FormErrors = {};
-        
+
         if (serverErrors.email) {
           newErrors.email = serverErrors.email.join(", ");
         }
         if (serverErrors.username) {
           newErrors.username = serverErrors.username.join(", ");
         }
-        
+
         setErrors(newErrors);
-        
+
         // Show specific toast messages
         if (newErrors.email) {
           toast.error(`Email уже занят: ${newErrors.email}`, {
@@ -219,6 +258,35 @@ export default function UserInfo({ user, onUpdate, editable = false }: UserInfoP
           </div>
 
           <div className={styles.formGroup}>
+            <label htmlFor="lastName">Фамилия:</label>
+            <input
+              id="lastName"
+              type="text"
+              name="lastName"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+              className={errors.lastName ? styles.errorInput : ""}
+              disabled={fieldsDisabled}
+            />
+            {errors.lastName && <span className={styles.errorText}>{errors.lastName}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="middleName">Отчество:</label>
+            <input
+              id="middleName"
+              type="text"
+              name="middleName"
+              value={formData.middleName || ""}
+              onChange={handleChange}
+              className={errors.middleName ? styles.errorInput : ""}
+              disabled={fieldsDisabled}
+            />
+            {errors.middleName && <span className={styles.errorText}>{errors.middleName}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
             <label htmlFor="email">Email:</label>
             <input
               id="email"
@@ -246,6 +314,41 @@ export default function UserInfo({ user, onUpdate, editable = false }: UserInfoP
               disabled={fieldsDisabled}
             />
             {errors.username && <span className={styles.errorText}>{errors.username}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="gender">Пол:</label>
+            <select
+              id="gender"
+              name="gender"
+              value={formData.gender || ""}
+              onChange={handleChange}
+              required
+              className={errors.gender ? styles.errorInput : ""}
+              disabled={fieldsDisabled}
+            >
+              <option value="">Выберите пол</option>
+              <option value="male">Мужской</option>
+              <option value="female">Женский</option>
+              <option value="other">Другой</option>
+            </select>
+            {errors.gender && <span className={styles.errorText}>{errors.gender}</span>}
+          </div>
+
+          <div className={styles.formGroup}>
+            <label htmlFor="birthDate">Дата рождения:</label>
+            <input
+              id="birthDate"
+              type="date"
+              name="birthDate"
+              value={formData.birthDate || ""}
+              onChange={handleChange}
+              required
+              max={new Date().toISOString().split("T")[0]}
+              className={errors.birthDate ? styles.errorInput : ""}
+              disabled={fieldsDisabled}
+            />
+            {errors.birthDate && <span className={styles.errorText}>{errors.birthDate}</span>}
           </div>
 
           <div className={styles.formActions}>
@@ -282,12 +385,39 @@ export default function UserInfo({ user, onUpdate, editable = false }: UserInfoP
             <span className={styles.value}>{user.name || "Не указано"}</span>
           </div>
           <div className={styles.infoItem}>
+            <span className={styles.label}>Фамилия:</span>
+            <span className={styles.value}>{user.lastName || "Не указано"}</span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.label}>Отчество:</span>
+            <span className={styles.value}>{user.middleName || "Не указано"}</span>
+          </div>
+
+          <div className={styles.infoItem}>
             <span className={styles.label}>Email:</span>
             <span className={styles.value}>{user.email}</span>
           </div>
           <div className={styles.infoItem}>
             <span className={styles.label}>Username:</span>
             <span className={styles.value}>{user.username}</span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.label}>Пол:</span>
+            <span className={styles.value}>
+              {user.gender === "male"
+                ? "Мужской"
+                : user.gender === "female"
+                  ? "Женский"
+                  : user.gender === "other"
+                    ? "Другой"
+                    : "Не указано"}
+            </span>
+          </div>
+          <div className={styles.infoItem}>
+            <span className={styles.label}>Дата рождения:</span>
+            <span className={styles.value}>
+              {user.birthDate ? new Date(user.birthDate).toLocaleDateString("ru-RU") : "Не указана"}
+            </span>
           </div>
         </div>
       )}
