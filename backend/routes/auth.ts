@@ -13,6 +13,10 @@ interface RegisterRequestBody {
   username: string;
   password: string;
   name: string;
+  lastName: string;
+  middleName?: string;
+  gender: 'male' | 'female' | 'other';
+  birthDate: string;
 }
 
 interface LoginRequestBody {
@@ -22,7 +26,6 @@ interface LoginRequestBody {
 
 // Используем Record<string, never> вместо пустых интерфейсов
 type EmptyRequestParams = Record<string, never>;
-type EmptyResponseBody = Record<string, never>;
 
 interface LoginResponse {
   message: string;
@@ -30,8 +33,13 @@ interface LoginResponse {
   user: {
     id: number;
     name: string;
+    lastName: string;
+    middleName?: string | null;
     email: string;
     password: string;
+    username: string;
+    gender?: 'male' | 'female' | 'other' | null;
+    birthDate?: string | null;
   };
 }
 
@@ -39,36 +47,25 @@ interface ErrorResponse {
   message: string;
 }
 
-router.post<
-  EmptyRequestParams,
-  EmptyResponseBody | ErrorResponse,
-  RegisterRequestBody
->(
+router.post(
   '/register',
   async (
-    req: Request<
-      EmptyRequestParams,
-      EmptyResponseBody | ErrorResponse,
-      RegisterRequestBody
-    >,
-    res: Response<EmptyResponseBody | ErrorResponse>,
+    req: Request<Record<string, never>, LoginResponse | ErrorResponse, RegisterRequestBody>,
+    res: Response<LoginResponse | ErrorResponse>,
   ): Promise<void> => {
-    const { email, username, password, name } = req.body;
+    const { email, username, password, name, lastName, middleName, gender, birthDate } = req.body;
 
-    if (!email || !username || !password || !name) {
+    if (!email || !username || !password || !name || !lastName || !gender || !birthDate) {
       res.status(400).json({ message: 'Заполните все поля' });
       return;
     }
-
     try {
-      // Проверяем занятость email
       const existingUserByEmail = await User.findOne({ where: { email } });
       if (existingUserByEmail) {
         res.status(400).json({ message: 'Email уже используется' });
         return;
       }
 
-      // Проверяем занятость username
       const existingUserByUsername = await User.findOne({
         where: { username },
       });
@@ -77,22 +74,47 @@ router.post<
         return;
       }
 
-      await User.create({
+      const user = await User.create({
         email,
         username,
         password,
         name,
+        lastName,
+        middleName: middleName || null,
+        gender,
+        birthDate,
         failed_attempts: 0,
         is_locked: false,
         lock_until: null,
       });
 
-      res.status(201).json({ message: 'Регистрация успешна' });
+      if (!process.env.JWT_SECRET) {
+        throw new Error('JWT_SECRET не настроен');
+      }
+
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: '1h',
+      });
+
+      res.status(201).json({
+        message: 'Регистрация успешна',
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          lastName: user.lastName,
+          middleName: user.middleName,
+          gender:user.gender,
+          birthDate:user.birthDate,
+          email: user.email,
+          password: user.password,
+          username: user.username,
+        },
+      });
     } catch (error) {
       console.error('Ошибка регистрации:', error);
 
       if (error instanceof ValidationError) {
-        // Стандартные сообщения Sequelize
         const messages = error.errors.map((err) => err.message);
         res.status(400).json({
           message: messages.join(', '),
@@ -189,6 +211,11 @@ router.post<
           name: user.name,
           email: user.email,
           password: user.password,
+          lastName: user.lastName,
+          middleName: user.middleName,
+          username: user.username,
+          gender: user.gender,
+          birthDate: user.birthDate,
         },
       });
     } catch (error) {

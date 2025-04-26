@@ -1,22 +1,24 @@
-// models/User.ts
 import { Model, DataTypes } from 'sequelize';
-import { sequelize } from '@config/db'; // Убедитесь, что импорт правильный
+import { sequelize } from '@config/db';
 import bcrypt from 'bcryptjs';
 
 interface UserAttributes {
   id: number;
   name: string;
+  lastName: string;
+  middleName?: string | null;
   email: string;
   username: string;
   password: string;
+  gender?: 'male' | 'female' | 'other' | null;
+  birthDate?: string | null;
   failed_attempts?: number;
   is_locked?: boolean;
   lock_until?: Date | null;
   createdAt?: Date;
-  updatedAt?: Date; // Добавьте это поле
+  updatedAt?: Date;
 }
 
-// Заменяем пустой интерфейс на тип с Omit
 type UserCreationAttributes = Omit<
   UserAttributes,
   'id' | 'createdAt' | 'updatedAt'
@@ -32,14 +34,18 @@ class User
 {
   declare id: number;
   declare name: string;
+  declare lastName: string;
+  declare middleName?: string | null;
   declare email: string;
   declare username: string;
   declare password: string;
+  declare gender?: 'male' | 'female' | 'other' | null;
+  declare birthDate?: string | null;
   declare failed_attempts: number;
   declare is_locked: boolean;
   declare lock_until: Date | null;
   declare createdAt: Date;
-  declare updatedAt: Date; // Добавьте это
+  declare updatedAt: Date;
 
   public validPassword = async (password: string): Promise<boolean> => {
     return await bcrypt.compare(password, this.password);
@@ -58,7 +64,23 @@ User.init(
       allowNull: false,
       validate: {
         notEmpty: true,
-        len: [1,100],
+        len: [1, 100],
+      },
+    },
+    lastName: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      validate: {
+        notEmpty: true,
+        len: [1, 100],
+      },
+    },
+    middleName: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      validate: {
+        notEmpty: true,
+        len: [0, 100],
       },
     },
     email: {
@@ -87,6 +109,21 @@ User.init(
         notEmpty: true,
       },
     },
+     gender: {
+      type: DataTypes.ENUM('male', 'female', 'other'),
+      allowNull: true,
+      validate: {
+        isIn: [['male', 'female', 'other']],
+      },
+    },
+    birthDate: {
+      type: DataTypes.DATEONLY,
+      allowNull: true,
+      validate: {
+        isDate: true,
+        isBefore: new Date().toISOString(), // Дата должна быть в прошлом
+      },
+    },
     failed_attempts: {
       type: DataTypes.INTEGER,
       defaultValue: 0,
@@ -101,7 +138,7 @@ User.init(
     },
   },
   {
-    sequelize, // Добавьте этот обязательный параметр
+    sequelize,
     modelName: 'User',
     tableName: 'users',
     timestamps: true,

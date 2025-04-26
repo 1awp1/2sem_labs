@@ -19,6 +19,16 @@ export default function EventCard({ event, isOwner, onEdit, onDelete }: EventCar
       setIsDescriptionOverflow(el.scrollHeight > el.clientHeight);
     }
   };
+  const formatCreatorName = () => {
+    if (!event.creator) {
+      // Если creator отсутствует, но есть createdBy, показываем ID
+      return event.createdBy ? `ID: ${event.createdBy}` : "Неизвестный автор";
+    }
+
+    const { name, lastName } = event.creator;
+    // Формируем полное имя, проверяя наличие lastName
+    return `${name}${lastName ? ` ${lastName}` : ""}`.trim();
+  };
 
   return (
     <div className={styles.card}>
@@ -68,7 +78,7 @@ export default function EventCard({ event, isOwner, onEdit, onDelete }: EventCar
 
       <div className={styles.meta}>
         <span>Дата: {new Date(event.date).toLocaleDateString()}</span>
-        {event.creator && <span>Автор: {event.creator.name}</span>}
+        <span>Автор: {formatCreatorName()}</span>
       </div>
     </div>
   );
