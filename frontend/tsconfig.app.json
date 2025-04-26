@@ -17,7 +17,7 @@
     "baseUrl": "./src",
     "rootDir": ".",
     "paths": {
-     "@/*": ["./*"],
+      "@/*": ["./*"],
       "@components/*": ["./components/*"],
       "@pages/*": ["./pages/*"],
       "@api/*": ["./api/*"],
@@ -25,7 +25,8 @@
       "@types/*": ["./types/*"],
       "@styles/*": ["./styles/*"],
       "@routes/*": ["./routes/*"],
-      "@assets/*": ["./assets/*"]
+      "@assets/*": ["./assets/*"],
+      "@redux/*": ["./redux/*"]
     },
 
     /* Linting */

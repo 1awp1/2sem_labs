@@ -1,4 +1,4 @@
-import styles from './ConfirmationModal.module.scss';
+import styles from "./ConfirmationModal.module.scss";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -8,12 +8,12 @@ interface ConfirmationModalProps {
   message: string;
 }
 
-export default function ConfirmationModal({ 
-  isOpen, 
-  onClose, 
-  onConfirm, 
-  title, 
-  message 
+export default function ConfirmationModal({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  message,
 }: ConfirmationModalProps) {
   if (!isOpen) return null;
 

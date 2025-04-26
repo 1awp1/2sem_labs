@@ -69,7 +69,9 @@ router.post<
       }
 
       // Проверяем занятость username
-      const existingUserByUsername = await User.findOne({ where: { username } });
+      const existingUserByUsername = await User.findOne({
+        where: { username },
+      });
       if (existingUserByUsername) {
         res.status(400).json({ message: 'Username пользователя уже занято' });
         return;

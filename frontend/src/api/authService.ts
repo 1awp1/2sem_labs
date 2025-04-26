@@ -25,7 +25,6 @@ export const login = async (values: LoginFormValues): Promise<AuthUser> => {
       username: response.data.user.username || response.data.user.name,
       email: response.data.user.email,
       name: response.data.user.name,
-      token: response.data.token,
     },
     token: response.data.token,
   };
@@ -63,6 +62,24 @@ export const verifyToken = async (token: string): Promise<boolean> => {
 export const getCurrentUser = async (token: string): Promise<User> => {
   const response = await axios.get("/users/me", {
     headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+export const getUserEvents = async (token: string): Promise<Event[]> => {
+  const response = await axios.get("/events/my-events", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  return response.data;
+};
+export const updateUser = async (
+  id: number,
+  userData: Partial<User>,
+  token: string
+): Promise<User> => {
+  const response = await axios.put(`/users/${id}`, userData, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
   });
   return response.data;
 };

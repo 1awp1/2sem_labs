@@ -1,8 +1,15 @@
+//localStorageUtils.ts
+import { AuthData } from "@/types/auth";
 import { AuthUser } from "@/types/user";
 
-export const getAuthData = (): AuthUser | null => {
-  const data = localStorage.getItem("auth");
-  return data ? JSON.parse(data) : null;
+export const getAuthData = (): AuthData | null => {
+  try {
+    const data = localStorage.getItem("auth");
+    return data ? JSON.parse(data) : null;
+  } catch (error) {
+    console.error("Error reading auth data:", error);
+    return null;
+  }
 };
 
 export const setAuthData = (data: AuthUser): void => {

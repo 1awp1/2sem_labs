@@ -98,7 +98,8 @@
   .registerContainer {
     flex-direction: column !important;
 
-    .logoSection, .formSection {
+    .logoSection,
+    .formSection {
       padding: 2rem !important;
     }
   }

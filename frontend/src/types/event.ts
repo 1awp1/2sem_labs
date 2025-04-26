@@ -17,6 +17,8 @@ export interface Event {
   date: string;
   createdBy: number;
   category: EventCategory;
+  createdAt: string;
+  updatedAt: string;
   creator?: {
     id: number;
     name: string;

@@ -1,5 +1,6 @@
-import { Event } from '@/types/event';
-import styles from './EventCard.module.scss';
+import { useState } from "react";
+import { Event } from "@/types/event";
+import styles from "./EventCard.module.scss";
 
 interface EventCardProps {
   event: Event;
@@ -9,27 +10,38 @@ interface EventCardProps {
 }
 
 export default function EventCard({ event, isOwner, onEdit, onDelete }: EventCardProps) {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const [isDescriptionOverflow, setIsDescriptionOverflow] = useState(false);
+
+  // Проверяем, нужно ли показывать кнопку "Читать далее"
+  const checkTextOverflow = (el: HTMLParagraphElement | null) => {
+    if (el) {
+      setIsDescriptionOverflow(el.scrollHeight > el.clientHeight);
+    }
+  };
+
   return (
     <div className={styles.card}>
       <div className={styles.cardHeader}>
-        <div className={styles.cardTitle}>
+        <div className={styles.titleWrapper}>
           <h3>{event.title}</h3>
           <span className={styles.category}>{event.category}</span>
         </div>
+
         {isOwner && (
           <div className={styles.cardActions}>
             {onEdit && (
-              <button 
+              <button
                 onClick={() => onEdit(event.id)}
-                className={styles.editButton}
+                className={`${styles.button} ${styles.editButton}`}
               >
                 Редактировать
               </button>
             )}
             {onDelete && (
-              <button 
+              <button
                 onClick={() => onDelete(event.id)}
-                className={styles.deleteButton}
+                className={`${styles.button} ${styles.deleteButton}`}
               >
                 Удалить
               </button>
@@ -37,9 +49,23 @@ export default function EventCard({ event, isOwner, onEdit, onDelete }: EventCar
           </div>
         )}
       </div>
-      
-      <p className={styles.description}>{event.description}</p>
-      
+
+      {event.description && (
+        <>
+          <p
+            ref={checkTextOverflow}
+            className={`${styles.description} ${isExpanded ? styles.expanded : ""}`}
+          >
+            {event.description}
+          </p>
+          {isDescriptionOverflow && (
+            <button className={styles.expandButton} onClick={() => setIsExpanded(!isExpanded)}>
+              {isExpanded ? "Свернуть" : "Читать далее"}
+            </button>
+          )}
+        </>
+      )}
+
       <div className={styles.meta}>
         <span>Дата: {new Date(event.date).toLocaleDateString()}</span>
         {event.creator && <span>Автор: {event.creator.name}</span>}

@@ -1,13 +1,19 @@
-import { Navigate } from "react-router-dom";
-import { useAuth } from "@/utils/localStorageUtils";
-import { JSX } from "react";
+import { Navigate, Outlet } from "react-router-dom";
+import { useAppSelector } from "@/redux/hook";
+import Loader from "@/components/Loader";
 
-export const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { isAuthenticated } = useAuth();
-  
-  if (!isAuthenticated()) {
+const ProtectedRoute = () => {
+  const { isAuthenticated, isLoading } = useAppSelector((state) => state.auth);
+
+  if (isLoading) {
+    return <Loader />;
+  }
+
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
 
-  return children;
+  return <Outlet />;
 };
+
+export default ProtectedRoute;

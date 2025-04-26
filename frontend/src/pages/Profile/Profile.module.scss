@@ -1,0 +1,93 @@
+.profile {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+
+  .profileContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .eventsSection {
+    margin-top: 2rem;
+
+    h2 {
+      color: #2c3e50;
+      font-size: 1.8rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #eee;
+    }
+  }
+}
+
+.userInfo {
+  background: #fff;
+  border-radius: 8px;
+  padding: 2rem;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    color: #2c3e50;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .infoGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .infoItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+
+    .label {
+      font-weight: 600;
+      color: #7f8c8d;
+    }
+
+    .value {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      padding: 0.5rem;
+      background: #f9f9f9;
+      border-radius: 4px;
+    }
+  }
+}
+
+.eventsList {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+
+  .empty {
+    text-align: center;
+    padding: 2rem;
+    color: #7f8c8d;
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .profile {
+    padding: 1rem;
+  }
+
+  .userInfo {
+    padding: 1.5rem;
+
+    .infoGrid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .eventsList {
+    grid-template-columns: 1fr;
+  }
+}

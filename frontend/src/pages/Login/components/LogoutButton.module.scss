@@ -15,7 +15,7 @@
   gap: 0.5rem;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -42,9 +42,11 @@
   }
 
   &::after {
-    content: '→';
+    content: "→";
     opacity: 0;
-    transition: opacity 0.3s ease, transform 0.3s ease;
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
     transform: translateX(-10px);
   }
 

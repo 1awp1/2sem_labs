@@ -5,8 +5,9 @@
 }
 
 @mixin card-shadow {
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 
-              0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 @mixin transition-all {
@@ -15,9 +16,13 @@
 
 @mixin responsive($breakpoint) {
   @if $breakpoint == tablet {
-    @media (max-width: 768px) { @content; }
+    @media (max-width: 768px) {
+      @content;
+    }
   }
   @if $breakpoint == mobile {
-    @media (max-width: 480px) { @content; }
+    @media (max-width: 480px) {
+      @content;
+    }
   }
 }
